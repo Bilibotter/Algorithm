@@ -13,41 +13,37 @@ class PLA():
         :return: 若返回True则在阈值内可收敛，False则不能
         """
         sign = lambda x: 1 if x > 0 else -1
-        err = []
         n, m = arr.shape
         self.n = n
         self.m = m
         m -= 1
         constant = 0
         threshold = 1000
+        pocket = {'errs': np.inf}
         weights = [1 for i in range(m)]
-        threshold = 1000
         while threshold > 0:
+            errs = 0
             for row in arr:
                 h = np.dot(weights, row[:m])
                 if sign(h+constant) != sign(row[-1]):
+                    errs += 1
                     threshold -= 1
                     p = random.uniform(0, 1)
                     weights = weights + p * row[-1] * row[:m]
                     constant = -1 * (h * p + constant * (1 - p))
-                    err.append(row)
-            if not err:
-                self.weights = weights
-                self.constant = constant
+            if errs < pocket['errs']:
+                pocket['errs'] = errs
+                pocket['weights'] = weights
+                pocket['constant'] = constant
+            if not errs:
+                self.weights = pocket['weights']
+                self.constant = pocket['constant']
                 return True
-            while err:
-                row = err.pop(0)
-                h = np.dot(weights, row[:m])
-                if sign(h+constant) != sign(row[-1]):
-                    threshold -= 1
-                    p = random.uniform(0, 1)
-                    weights = weights + p * row[-1] * row[:m]
-                    constant = -1 * (h + constant) / 2
-                    err.append(row)
-                    if threshold < 0:
-                        self.weights = weights
-                        self.constant = constant
-                        return False
+            if threshold < 0:
+                self.weights = pocket['weights']
+                self.constant = pocket['constant']
+                return False
+
 
         return True
 
@@ -100,7 +96,7 @@ for row, pred in zip(DS, p_preds):
     if row[-1] != pred:
         print(weights*row[:vm.m-1]+constant, pred, row)
         errs += 1
-    if pred == 1:
+    if row[-1] == 1:
         positive[0].append(row[0])
         positive[-1].append(row[1])
     else:
