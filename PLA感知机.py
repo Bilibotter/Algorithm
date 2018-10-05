@@ -28,9 +28,10 @@ class PLA():
                 if sign(h+constant) != sign(row[-1]):
                     errs += 1
                     threshold += 1
-                    p = random.uniform(0.5, 1)
+                    p = random.uniform(0, 1)
                     weights = weights + p * row[-1] * row[:m]
-                    constant = -1 * (h * p + constant * (1 - p))
+                    # constant = -1 * (h * p + constant * (1 - p))
+                    constant = (-1 * h * p + constant * (1 - p))
             if errs < pocket['errs']:
                 pocket['errs'] = errs
                 pocket['weights'] = weights
