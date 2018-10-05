@@ -18,17 +18,17 @@ class PLA():
         self.m = m
         m -= 1
         constant = 0
-        threshold = 1000
+        threshold = 0
         pocket = {'errs': np.inf}
         weights = [1 for i in range(m)]
-        while threshold > 0:
+        while True:
             errs = 0
             for row in arr:
                 h = np.dot(weights, row[:m])
                 if sign(h+constant) != sign(row[-1]):
                     errs += 1
-                    threshold -= 1
-                    p = random.uniform(0, 1)
+                    threshold += 1
+                    p = random.uniform(0.5, 1)
                     weights = weights + p * row[-1] * row[:m]
                     constant = -1 * (h * p + constant * (1 - p))
             if errs < pocket['errs']:
@@ -36,16 +36,14 @@ class PLA():
                 pocket['weights'] = weights
                 pocket['constant'] = constant
             if not errs:
+                print(f'With {threshold} corrections.')
                 self.weights = pocket['weights']
                 self.constant = pocket['constant']
                 return True
-            if threshold < 0:
+            if threshold > 100000:
                 self.weights = pocket['weights']
                 self.constant = pocket['constant']
                 return False
-
-
-        return True
 
     def predict(self, arr):
         sign = lambda x: 1 if x > 0 else -1
