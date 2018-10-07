@@ -31,7 +31,7 @@ class PLA():
                     p = random.uniform(0, 1)
                     weights = weights + p * row[-1] * row[:m]
                     # constant = -1 * (h * p + constant * (1 - p))
-                    constant = (-1 * h * p + constant * (1 - p))
+                    constant = (-1 * h * (1 - p) + constant * p)
             if errs < pocket['errs']:
                 pocket['errs'] = errs
                 pocket['weights'] = weights
@@ -41,7 +41,7 @@ class PLA():
                 self.weights = pocket['weights']
                 self.constant = pocket['constant']
                 return True
-            if threshold > 100000:
+            if threshold > 4000:
                 self.weights = pocket['weights']
                 self.constant = pocket['constant']
                 return False
